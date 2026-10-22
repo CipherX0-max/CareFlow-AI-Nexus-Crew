@@ -1,0 +1,30 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --focus: #1b6b67;
+}
+
+html { -webkit-text-size-adjust: 100%; }
+body { @apply bg-ivory text-ink font-sans antialiased; font-feature-settings: "ss01", "cv11"; }
+h1, h2, h3 { @apply font-sans tracking-tight; }
+:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; border-radius: 4px; }
+::selection { background: #cfe5e2; }
+
+@layer components {
+  .card { @apply bg-paper border border-stone rounded-xl shadow-card; }
+  .label { @apply block text-sm font-medium text-ink mb-1; }
+  .hint { @apply text-xs text-ink-faint mt-1; }
+  .input { @apply w-full rounded-lg border border-stone-dark bg-white px-3 py-2 text-[15px] text-ink placeholder:text-ink-faint focus:border-teal focus:outline-none focus:ring-2 focus:ring-teal/30 disabled:bg-slate-soft; }
+  .btn { @apply inline-flex items-center justify-center gap-2 rounded-lg px-4 py-2 text-sm font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed min-h-[40px]; }
+  .btn-primary { @apply btn bg-teal text-white hover:bg-teal-dark; }
+  .btn-secondary { @apply btn bg-paper text-ink border border-stone-dark hover:bg-stone/60; }
+  .btn-danger { @apply btn bg-crimson-clinical text-white hover:opacity-90; }
+  .btn-ghost { @apply btn text-ink-soft hover:bg-stone/60; }
+  .prose-plain p { @apply mb-3 leading-relaxed; }
+}
+
+@media (prefers-reduced-motion: reduce) { * { animation: none !important; transition: none !important; } }
+@keyframes shimmer { 0% { background-position: -200px 0; } 100% { background-position: 200px 0; } }
+.skeleton { background: linear-gradient(90deg, #efe9de 0, #f7f3ea 40%, #efe9de 80%); background-size: 400px 100%; animation: shimmer 1.4s infinite linear; border-radius: 6px; }

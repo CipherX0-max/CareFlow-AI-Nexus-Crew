@@ -1,0 +1,295 @@
+{
+  "version": "demo-0.1.0-UNREVIEWED",
+  "name": "CareFlow DEMONSTRATION ruleset",
+  "clinically_approved": false,
+  "approval_note": "DEMONSTRATION ONLY. These rules and the placeholder numbers in them were written by software engineers, have NOT been reviewed by a qualified clinician, and must not be used for real patients. Use synthetic cases only. A clinician-approved ruleset must replace this file (set clinically_approved=true only with a recorded sign-off).",
+  "emergency": {
+    "concepts": [
+      "chest_pain",
+      "shortness_of_breath",
+      "syncope",
+      "facial_droop",
+      "slurred_speech",
+      "unilateral_weakness",
+      "severe_bleeding",
+      "blood_in_vomit_or_cough",
+      "seizure"
+    ],
+    "message_en": "Some of what you describe can be serious. If you are in severe pain, struggling to breathe, have fainted, or feel something is badly wrong, do not wait for this form - call your local emergency number or go to the nearest emergency department now. CareFlow AI cannot give medical advice and does not monitor submissions in real time.",
+    "message_hi": "आपने जो बताया वह गंभीर हो सकता है। यदि आपको तेज़ दर्द है, सांस लेने में कठिनाई है, आप बेहोश हुए हैं, या कुछ बहुत गलत लग रहा है, तो इस फ़ॉर्म का इंतज़ार न करें - तुरंत अपने स्थानीय आपातकालीन नंबर पर कॉल करें या नज़दीकी अस्पताल के आपातकालीन विभाग जाएँ। CareFlow AI चिकित्सीय सलाह नहीं दे सकता और सबमिशन की रियल-टाइम निगरानी नहीं करता।",
+    "message_hi_Latn": "Aapne jo bataya woh gambhir ho sakta hai. Agar tez dard hai, saans lene mein mushkil hai, behoshi hui hai, ya kuch bahut galat lag raha hai, to is form ka intezaar na karein - turant apne local emergency number par call karein ya najdeeki hospital ke emergency department jaayein. CareFlow AI medical salah nahi de sakta aur submissions ko real-time monitor nahi karta.",
+    "reviewed_by_clinician": false
+  },
+  "safety_critical_concepts": [
+    "chest_pain",
+    "shortness_of_breath",
+    "syncope",
+    "facial_droop",
+    "slurred_speech",
+    "unilateral_weakness",
+    "severe_bleeding",
+    "blood_in_vomit_or_cough",
+    "seizure",
+    "confusion",
+    "radiating_arm_pain"
+  ],
+  "safety_conflict": {
+    "route": "NEEDS_REVIEW",
+    "requires_reviewer_resolution": true
+  },
+  "urgent_rules": [
+    {
+      "id": "DEMO-U1",
+      "tier": 1,
+      "name": "Chest pain with breathlessness or arm/jaw radiation or sweating",
+      "when": {
+        "all": [
+          {
+            "fact": {
+              "concept": "chest_pain"
+            }
+          },
+          {
+            "any": [
+              {
+                "fact": {
+                  "concept": "shortness_of_breath"
+                }
+              },
+              {
+                "fact": {
+                  "concept": "radiating_arm_pain"
+                }
+              },
+              {
+                "fact": {
+                  "concept": "sweating"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "rationale": "Chest pain reported together with another configured warning symptom.",
+      "clinical_metadata": {
+        "review_status": "unreviewed",
+        "clinically_approved": false,
+        "source_organisation": null,
+        "source_reference": null,
+        "effective_date": null,
+        "action": "propose_urgent_for_staff_review",
+        "required_context": [],
+        "contraindications": [],
+        "review_note": "No clinical protocol basis has been supplied; this rule is an unvalidated demonstration placeholder."
+      }
+    },
+    {
+      "id": "DEMO-U2",
+      "tier": 1,
+      "name": "Possible stroke-pattern symptoms",
+      "when": {
+        "any": [
+          {
+            "fact": {
+              "concept": "facial_droop"
+            }
+          },
+          {
+            "fact": {
+              "concept": "slurred_speech"
+            }
+          },
+          {
+            "fact": {
+              "concept": "unilateral_weakness"
+            }
+          }
+        ]
+      },
+      "rationale": "Any of facial droop, slurred speech or one-sided weakness is reported.",
+      "clinical_metadata": {
+        "review_status": "unreviewed",
+        "clinically_approved": false,
+        "source_organisation": null,
+        "source_reference": null,
+        "effective_date": null,
+        "action": "propose_urgent_for_staff_review",
+        "required_context": [],
+        "contraindications": [],
+        "review_note": "No clinical protocol basis has been supplied; this rule is an unvalidated demonstration placeholder."
+      }
+    },
+    {
+      "id": "DEMO-U3",
+      "tier": 1,
+      "name": "Heavy bleeding or blood in vomit/cough",
+      "when": {
+        "any": [
+          {
+            "fact": {
+              "concept": "severe_bleeding"
+            }
+          },
+          {
+            "fact": {
+              "concept": "blood_in_vomit_or_cough"
+            }
+          }
+        ]
+      },
+      "rationale": "Heavy bleeding or blood in vomit/cough is reported.",
+      "clinical_metadata": {
+        "review_status": "unreviewed",
+        "clinically_approved": false,
+        "source_organisation": null,
+        "source_reference": null,
+        "effective_date": null,
+        "action": "propose_urgent_for_staff_review",
+        "required_context": [],
+        "contraindications": [],
+        "review_note": "No clinical protocol basis has been supplied; this rule is an unvalidated demonstration placeholder."
+      }
+    },
+    {
+      "id": "DEMO-U4",
+      "tier": 2,
+      "name": "Chest pain reported",
+      "when": {
+        "fact": {
+          "concept": "chest_pain"
+        }
+      },
+      "rationale": "Chest pain is reported as present; red flags are never hidden by missing vitals or a low overall picture.",
+      "clinical_metadata": {
+        "review_status": "unreviewed",
+        "clinically_approved": false,
+        "source_organisation": null,
+        "source_reference": null,
+        "effective_date": null,
+        "action": "propose_urgent_for_staff_review",
+        "required_context": [],
+        "contraindications": [],
+        "review_note": "No clinical protocol basis has been supplied; this rule is an unvalidated demonstration placeholder."
+      }
+    },
+    {
+      "id": "DEMO-U5",
+      "tier": 2,
+      "name": "Breathlessness reported",
+      "when": {
+        "fact": {
+          "concept": "shortness_of_breath"
+        }
+      },
+      "rationale": "Shortness of breath is reported as present.",
+      "clinical_metadata": {
+        "review_status": "unreviewed",
+        "clinically_approved": false,
+        "source_organisation": null,
+        "source_reference": null,
+        "effective_date": null,
+        "action": "propose_urgent_for_staff_review",
+        "required_context": [],
+        "contraindications": [],
+        "review_note": "No clinical protocol basis has been supplied; this rule is an unvalidated demonstration placeholder."
+      }
+    },
+    {
+      "id": "DEMO-U6",
+      "tier": 2,
+      "name": "Fainting or seizure",
+      "when": {
+        "any": [
+          {
+            "fact": {
+              "concept": "syncope"
+            }
+          },
+          {
+            "fact": {
+              "concept": "seizure"
+            }
+          }
+        ]
+      },
+      "rationale": "Loss of consciousness or seizure is reported.",
+      "clinical_metadata": {
+        "review_status": "unreviewed",
+        "clinically_approved": false,
+        "source_organisation": null,
+        "source_reference": null,
+        "effective_date": null,
+        "action": "propose_urgent_for_staff_review",
+        "required_context": [],
+        "contraindications": [],
+        "review_note": "No clinical protocol basis has been supplied; this rule is an unvalidated demonstration placeholder."
+      }
+    },
+    {
+      "id": "DEMO-V1",
+      "tier": 1,
+      "name": "Low oxygen saturation (PLACEHOLDER threshold)",
+      "when": {
+        "vital": {
+          "name": "spo2",
+          "op": "<",
+          "value": 92
+        }
+      },
+      "placeholder": true,
+      "rationale": "A recorded SpO2 is below the PLACEHOLDER threshold of 92% - this number is an engineering placeholder, not a clinical standard.",
+      "clinical_metadata": {
+        "review_status": "unreviewed",
+        "clinically_approved": false,
+        "source_organisation": null,
+        "source_reference": null,
+        "effective_date": null,
+        "action": "propose_urgent_for_staff_review",
+        "required_context": [],
+        "contraindications": [],
+        "review_note": "No clinical protocol basis has been supplied; this rule is an unvalidated demonstration placeholder."
+      }
+    }
+  ],
+  "escalation_indicators": {
+    "progression": [
+      "worsening",
+      "rapidly_worsening"
+    ]
+  },
+  "normal_requires": {
+    "symptom": true,
+    "age": true,
+    "duration_or_onset": true
+  },
+  "vitals_expected": [
+    {
+      "when_concepts": [
+        "fever"
+      ],
+      "vitals": [
+        "temperature"
+      ],
+      "blocking": false
+    },
+    {
+      "when_concepts": [
+        "cough",
+        "asthma_copd"
+      ],
+      "vitals": [
+        "spo2"
+      ],
+      "blocking": false
+    }
+  ],
+  "ordering_policy": "queue, then rule tier (ascending), then worsening indicator (descending), then time waiting (longest first), then case id. No weighted scores are used.",
+  "protocol_metadata": {
+    "review_status": "unreviewed",
+    "clinically_approved": false,
+    "source_organisation": null,
+    "source_reference": null,
+    "effective_date": null,
+    "review_note": "Engineering demonstration logic only. No clinical source or clinician sign-off is recorded."
+  }
+}

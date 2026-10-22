@@ -1,0 +1,17 @@
+fastapi>=0.110
+uvicorn[standard]>=0.27
+sqlalchemy>=2.0.25
+alembic>=1.13
+pydantic>=2.6
+pydantic-settings>=2.2
+httpx>=0.26
+python-multipart>=0.0.9
+argon2-cffi>=23.1
+pymupdf>=1.24
+pytesseract>=0.3.10
+pillow>=10.2
+faster-whisper>=1.0
+av>=14,<16  # faster-whisper 1.2 is incompatible with av>=16
+pytest>=8.0
+reportlab>=4.0
+email-validator>=2.1
