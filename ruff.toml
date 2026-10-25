@@ -1,6 +1,0 @@
-line-length = 200
-target-version = "py311"
-extend-exclude = ["legacy", "backend/app", "backend/tests", "backend/eval", "frontend", "backend/careflow/migrations/versions"]
-[lint]
-select = ["E9", "F", "B006", "S102", "S307"]
-ignore = ["F401", "F841"]
