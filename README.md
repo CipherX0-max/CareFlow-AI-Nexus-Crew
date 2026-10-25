@@ -1,19 +1,22 @@
 # CareFlow AI
 
-A **local-first, human-in-the-loop** healthcare **intake and urgency-prioritisation** MVP. 
+[![CI](https://github.com/AMITSINGH098/careflow-ai/actions/workflows/ci.yml/badge.svg)](https://github.com/AMITSINGH098/careflow-ai/actions)
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
+[![Python 3.11+](https://img.shields.io/badge/python-3.11+-blue.svg)](https://www.python.org/downloads/)
+[![FastAPI](https://img.shields.io/badge/FastAPI-0.110+-009688.svg?logo=fastapi&logoColor=white)](https://fastapi.tiangolo.com)
+[![Next.js 14](https://img.shields.io/badge/Next.js-14-black.svg?logo=next.js&logoColor=white)](https://nextjs.org/)
+[![TypeScript](https://img.shields.io/badge/TypeScript-5-3178C6.svg?logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
 
-WEBSITE :https://silk-contractor-managing-prizes.trycloudflare.com
+A **local-first, human-in-the-loop** healthcare **intake and urgency-prioritisation** platform.
 
-Patients describe symptoms by text, voice and uploaded reports (English, Hindi, Hinglish). Local models turn that into
-structured, source-traceable facts; a deterministic engine flags missing and contradictory information; follow-up
-questions are asked; a transparent **rules engine** proposes a queue (**Urgent / Normal / Needs review**); staff inspect
-the evidence and confirm or override the proposal with a reason. Everything is audited.
+Patients describe symptoms by text, voice, and uploaded reports (English, Hindi, Marathi, Bengali, and Hinglish). Local models turn that into structured, source-traceable facts; a deterministic engine flags missing and contradictory information; targeted follow-up questions are generated; a transparent **rules engine** proposes an intake queue (**Urgent / Normal / Needs review**); and clinical staff inspect evidence and confirm or override proposals with a reason. Everything is audited in an append-only log.
 
+> [!CAUTION]
 > **Read this first.** This is a demonstration prototype. It is **not** a medical device, does **not** diagnose or prescribe,
 > and has **no clinical validation**. The urgency rules in `backend/careflow/rules/demo_ruleset.json` are engineering
 > placeholders that **no clinician has reviewed** and must be replaced by a clinician-approved ruleset before any real use.
 > The emergency warning wording is likewise unreviewed. Use **synthetic data only**.
-> See [IMPLEMENTATION_STATUS.md](IMPLEMENTATION_STATUS.md) for exactly what works, what is partial and what is unavailable.
+> See [IMPLEMENTATION_STATUS.md](IMPLEMENTATION_STATUS.md) for details on current capabilities and limitations.
 
 ## Workflow
 
@@ -27,7 +30,10 @@ patient intake (text · voice · PDF/photo)
    -> editable draft clinical note -> clinician approval -> append-only audit trail
 ```
 
-The current tests cover key safety behaviours: configured red-flag rules take precedence, missing or conflicting information does not silently become Normal, and extraction or rules failures route to **Needs review**. The LLM extracts facts but does not assign urgency. Conflicts are preserved, and processed speech/document text can be reviewed and corrected before use.
+Key behaviours (all covered by tests): a present red-flag symptom always yields **Urgent** regardless of missing vitals or
+conflicts; missing/contradictory/unreliable information can **never** yield Normal; an AI/DB/rules failure routes to
+**Needs review**, never to Normal; the LLM extracts, it never assigns urgency; conflicts are preserved, not merged;
+speech/OCR/translation output is shown to the patient for correction before use.
 
 ## Repository layout
 
@@ -36,6 +42,7 @@ The current tests cover key safety behaviours: configured red-flag rules take pr
 | `backend/careflow/` | FastAPI app: `routers/` (auth, patient, staff, admin), `services/` (lexicon, extraction, ocr, stt, reconcile, followup, rules_engine, pipeline, notes), `models.py`, `migrations/` (Alembic), `rules/demo_ruleset.json`, `scripts/`, `tests/` |
 | `frontend/` | Next.js 14 · React · TypeScript · Tailwind (App Router). `/api/*` is proxied to the backend (same-origin cookies) |
 | `docs/` | `API.md` (generated), `mimic_ed_demo_report.md` (generated dataset evaluation) |
+| `backend/app`, `backend/tests`, `backend/eval` | Superseded prototype, left untouched and unused; see "Legacy code" below |
 
 ## Setup on macOS
 
@@ -55,7 +62,7 @@ ollama pull qwen3:4b
 mkdir -p data/tessdata && cp /opt/homebrew/share/tessdata/{eng,osd}.traineddata data/tessdata/
 curl -L -o data/tessdata/hin.traineddata https://github.com/tesseract-ocr/tessdata_fast/raw/main/hin.traineddata
 
-# 4) Speech model (faster-whisper "small", ~460 MB, downloaded once into data/models/whisper on first use or now:)
+# 4) Speech model (faster-whisper "small", downloaded once into data/models/whisper on first use or now:)
 python -c "from backend.careflow.services import stt; stt.get_model()"
 
 # 5) Frontend
@@ -63,7 +70,33 @@ cd frontend && npm install && cd ..
 ```
 
 Whisper note: `faster-whisper` 1.2 needs `av<16` (pinned in requirements). Larger Whisper models (`medium`, `large-v3`) improve
-code-switched and regional speech; set `WHISPER_MODEL` in `.env`. Set `WHISPER_LOCAL_ONLY=true` to forbid any download.
+code-switched and regional speech; set `WHISPER_MODEL=large-v3` in `.env` (or `WHISPER_MODEL=large-v3` in your shell). The model is
+downloaded into `WHISPER_MODEL_DIR` (default `data/models/whisper`) on first load unless `WHISPER_LOCAL_ONLY=true`; ordinary
+transcription requests do not select or download a second model. Model size affects disk, memory and speed: `large-v3` can need
+several GB of RAM/VRAM and may be slow or unavailable on CPU-only machines. `WHISPER_DEVICE` and `WHISPER_COMPUTE_TYPE` control
+hardware and quantization. No model weights are included in the repository.
+On Windows, `WHISPER_DEVICE=cpu` with `WHISPER_COMPUTE_TYPE=int8` is the default CPU path; a supported CUDA setup can be selected
+explicitly when available. `WHISPER_MODEL` is read once when the backend process starts and that model instance is reused for
+subsequent uploads in that process (each separate worker process has its own instance). The active `.env` settings in this checkout
+currently select `large-v3`, `cpu`, and `int8`; `small` is a faster lower-memory alternative. Change configuration and restart the
+backend to switch model sizes.
+The repeatable local-only `large-v3` versus `small` timing procedure and this checkout's measured synthetic English result are in
+[`docs/whisper_speed_benchmark.md`](docs/whisper_speed_benchmark.md).
+
+For non-English speech, the current workflow provides an English rendering to staff using a second local Whisper inference pass.
+`WHISPER_TRANSLATE=true` preserves that behavior. Set `WHISPER_TRANSLATE=false` to skip the pass for faster processing. The original
+transcript is still retained; the result carries visible `translation_skipped` and `translation_unavailable` review flags, and no
+English text is fabricated. Translation/negation/repetition checks and the existing confirmation workflow remain in effect.
+
+Audio intake offers English (`en`), Hindi (`hi`), Marathi (`mr`), Bengali (`bn`), Hinglish, and automatic detection. The four
+explicit languages are passed to faster-whisper; Hinglish uses automatic detection because Whisper has no Hinglish language code.
+Language selection guides recognition and does not guarantee accuracy. The detected language and confidence are shown separately;
+low confidence or a disagreement triggers review and allows retrying with another selection. The source-language transcript remains
+the original; a separate English rendering may be provided and is marked for review when empty, repetitive, or suspect around negation.
+All ASR runs locally through faster-whisper. No hosted speech API is configured or added. Recording remains record → preview → upload →
+transcribe; it is not live streaming. A `Transcribing…` item stays pending while its local background task loads the model/runs inference.
+Check that the backend process is running, `STT_ENABLED=true`, there is sufficient memory/disk, and the model is cached or network is
+available for its first download; restart a task stuck after a backend restart and retry if it reaches failed.
 
 ### Database
 
@@ -116,6 +149,27 @@ cd frontend
 npm run typecheck && npm run lint && npm test && npm run build
 ```
 
+### Local speech benchmark
+
+Create a JSON manifest and place synthetic audio files beside it. Use the same exact synthetic utterances for each language, with
+known symptom terms and both positive and negative statements; avoid real patient data. Example manifest:
+
+```json
+[
+  {"audio":"english.wav","selected_language":"en","reference":"I have fever but no cough","clinical_terms":["fever","cough"],"negations":["no cough"]},
+  {"audio":"hindi.wav","selected_language":"hi","reference":"मुझे बुखार है लेकिन खांसी नहीं है","clinical_terms":["बुखार","खांसी"],"negations":["नहीं"]},
+  {"audio":"marathi.wav","selected_language":"mr","reference":"मला ताप आहे पण खोकला नाही","clinical_terms":["ताप","खोकला"],"negations":["नाही"]},
+  {"audio":"bengali.wav","selected_language":"bn","reference":"আমার জ্বর আছে কিন্তু কাশি নেই","clinical_terms":["জ্বর","কাশি"],"negations":["নেই"]},
+  {"audio":"hinglish.wav","selected_language":"hinglish","reference":"Mujhe fever hai but cough nahi hai","clinical_terms":["fever","cough"],"negations":["nahi"]}
+]
+```
+
+Run `python -m backend.careflow.scripts.benchmark_stt path/to/manifest.json` with the local model already available. It records
+the selection, Whisper detection/confidence, untouched original transcript, reference, approximate whitespace-token WER, simple
+term/negation checks, separate English rendering and review flags. WER is only approximate for Indic scripts and code-mixed
+utterances; inspect each transcript manually. This repository includes no benchmark recordings or model-derived results; mocked
+unit tests verify plumbing only and do not establish language accuracy.
+
 The supplied `seed_cases_100.json` can be run with `python -m backend.careflow.scripts.seed_cases_eval`. This regression evaluator
 uses raw symptom text and explicitly supplied age/vitals with the deterministic demonstration rules. It ignores the dataset's
 `triage_result`, scores and `clinical_audit` claims; its output is not clinical validation or ground truth. It does not seed those
@@ -123,7 +177,7 @@ records into the live case queue. For queue demonstrations, use the curated `see
 synthetic persistent cases through the real API.
 
 The 20-scenario synthetic acceptance matrix lives in `backend/careflow/demo/scenarios.py` and is run by
-`backend/careflow/tests/test_acceptance.py` (and by the seeding script, so what is demonstrated is what is tested).
+`tests/test_acceptance.py` (and by the seeding script, so what is demonstrated is what is tested).
 
 ## Configuration
 
@@ -174,3 +228,10 @@ Keyword lexicon (not full NLP) covers ~40 concepts in English/Hindi/Hinglish; ot
 routed to staff review. Whisper `small` mis-transcribes regional and code-switched speech (flagged and patient-corrected, never
 trusted silently). OCR is a text reader, not medical-image understanding. Single-process in-memory rate limiter and background
 tasks (a restart marks in-flight cases as failed -> Needs review). See `IMPLEMENTATION_STATUS.md`.
+
+## Legacy code
+
+The earlier hackathon prototype (`backend/app`, `backend/tests`, `backend/eval`, mock/cloud provider adapters, hard-coded demo logins and an
+additive weighted score) conflicted with the requirements (cloud providers, fixed credentials, weighted scores) and was replaced by
+`backend/careflow`. It is left in place, unmodified and unused, for you to delete once you have confirmed you do not need it.
+`PROVIDER_GUIDE.md` now documents the local-only model setup.

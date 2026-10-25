@@ -1,0 +1,42 @@
+# secrets / environment
+.env
+.env.*
+!.env.example
+
+# patient-like data, uploads, databases, datasets, models
+data/
+uploads/
+*.db
+*.db-wal
+*.db-shm
+*.sqlite3
+demo_credentials.txt
+
+# python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+.pytest_cache/
+.pytest-tmp/
+.ruff_cache/
+.mypy_cache/
+.coverage
+htmlcov/
+
+# node / next
+node_modules/
+.next/
+out/
+build/
+dist/
+*.tsbuildinfo
+next-env.d.ts
+
+# misc
+*.log
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+
