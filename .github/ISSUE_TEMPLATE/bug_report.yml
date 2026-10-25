@@ -1,0 +1,46 @@
+name: Bug Report
+description: File a bug report to help improve CareFlow AI
+title: "[BUG] <title>"
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: Thanks for reporting an issue! Please provide as much context as possible.
+  - type: textarea
+    id: description
+    attributes:
+      label: Bug Description
+      description: A clear and concise description of what the bug is.
+    validations:
+      required: true
+  - type: textarea
+    id: reproduction
+    attributes:
+      label: Steps to Reproduce
+      description: Steps to reproduce the behavior.
+      placeholder: |
+        1. Start backend with `...`
+        2. Navigate to `...`
+        3. Submit intake form with `...`
+        4. See error
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected Behavior
+      description: What you expected to happen.
+    validations:
+      required: true
+  - type: textarea
+    id: environment
+    attributes:
+      label: Environment
+      description: OS version, Python version, Node version, Ollama model, etc.
+      placeholder: |
+        - OS: Windows 11 / macOS / Ubuntu
+        - Python version: 3.12
+        - Node version: 20
+        - Ollama model: qwen3:4b
+    validations:
+      required: false

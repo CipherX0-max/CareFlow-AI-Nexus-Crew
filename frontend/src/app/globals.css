@@ -1,0 +1,147 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* =====================================================================================================
+   CareFlow design system — Warm Ivory, Pale Butter & Deep Forest
+   Tokens live in tailwind.config.ts. This file holds base typography, shared component classes, the
+   provenance rule system and motion. Motion is always optional: see the reduced-motion block at the end.
+   ===================================================================================================== */
+
+@layer base {
+  html {
+    -webkit-text-size-adjust: 100%;
+    scroll-behavior: smooth;
+  }
+  body {
+    @apply bg-ivory font-sans text-[15px] leading-relaxed text-ink antialiased;
+    font-feature-settings: "ss01", "cv11";
+    text-rendering: optimizeLegibility;
+  }
+  /* Display face carries every heading; body copy keeps the quieter face. */
+  h1, h2, h3, h4 {
+    @apply font-display;
+    letter-spacing: -0.024em;
+    text-wrap: balance;
+  }
+  h1 { letter-spacing: -0.036em; line-height: 1.03; }
+  h2 { letter-spacing: -0.028em; line-height: 1.1; }
+  h3 { letter-spacing: -0.015em; line-height: 1.24; }
+  p { text-wrap: pretty; }
+  ::selection { background: #F6E7B2; color: #10231C; }
+  :focus-visible {
+    outline: 2px solid #165B45;
+    outline-offset: 2px;
+    border-radius: 4px;
+  }
+  input[type="checkbox"], input[type="radio"] {
+    accent-color: #165B45;
+    width: 1.05rem;
+    height: 1.05rem;
+  }
+  audio { accent-color: #165B45; }
+  summary { cursor: pointer; }
+  summary:focus-visible { outline-offset: 3px; }
+  pre, code, .font-mono { font-variant-ligatures: none; }
+}
+
+@layer components {
+  /* ---- surfaces ---- */
+  .card {
+    @apply rounded-xl border border-stone bg-paper shadow-card;
+  }
+
+  /* ---- form controls ---- */
+  .label {
+    @apply mb-1.5 block text-sm font-semibold text-ink;
+  }
+  .hint {
+    @apply mt-1.5 text-xs leading-snug text-ink-faint;
+  }
+  .input {
+    @apply min-h-[44px] w-full rounded-md border border-stone-dark bg-paper px-3 py-2 text-[15px] text-ink placeholder:text-ink-faint;
+    transition: border-color 140ms ease, box-shadow 140ms ease, background-color 140ms ease;
+  }
+  .input:hover:not(:disabled) { border-color: #8F897B; }
+  .input:focus {
+    @apply border-forest outline-none;
+    box-shadow: 0 0 0 3px rgba(22, 91, 69, 0.16);
+  }
+  .input:disabled { @apply cursor-not-allowed bg-slate-soft text-ink-faint; }
+  textarea.input { line-height: 1.55; }
+
+  /* ---- buttons ---- */
+  .btn,
+  .btn-primary,
+  .btn-secondary,
+  .btn-danger,
+  .btn-ghost {
+    @apply inline-flex min-h-[44px] items-center justify-center gap-2 rounded-md px-4 py-2 text-sm font-semibold leading-tight sm:min-h-[40px];
+    transition: background-color 140ms ease, border-color 140ms ease, color 140ms ease, transform 90ms ease, box-shadow 140ms ease;
+  }
+  .btn:disabled,
+  .btn-primary:disabled,
+  .btn-secondary:disabled,
+  .btn-danger:disabled,
+  .btn-ghost:disabled { @apply cursor-not-allowed opacity-50; }
+  .btn:active:not(:disabled),
+  .btn-primary:active:not(:disabled),
+  .btn-secondary:active:not(:disabled),
+  .btn-danger:active:not(:disabled) { transform: translateY(1px); }
+
+  .btn-primary { @apply bg-forest text-white; }
+  .btn-primary:hover:not(:disabled) { @apply bg-forest-dark; }
+  .btn-secondary { @apply border border-stone-dark bg-paper text-ink; }
+  .btn-secondary:hover:not(:disabled) { @apply border-ink-soft bg-butter-soft/60; }
+  .btn-danger { @apply bg-crimson-clinical text-white; }
+  .btn-danger:hover:not(:disabled) { background: #871B14; }
+  .btn-ghost { @apply text-ink-soft; }
+  .btn-ghost:hover:not(:disabled) { @apply bg-slate-soft text-ink; }
+
+  .page-title {
+    @apply font-display text-[clamp(1.85rem,3.2vw,2.5rem)] font-semibold text-ink;
+  }
+
+  /* ---- editorial labels ---- */
+  .kicker {
+    @apply font-mono text-[11px] font-medium uppercase tracking-[0.14em] text-forest;
+  }
+  .rule-top { @apply border-t border-stone; }
+
+  /* ---- loading ---- */
+  .skeleton {
+    background: linear-gradient(90deg, #EAE4D7 0, #F5F1E6 40%, #EAE4D7 80%);
+    background-size: 400px 100%;
+    animation: shimmer 1.4s infinite linear;
+    border-radius: 6px;
+  }
+
+  /* ---- provenance rule system -----------------------------------------------------------------------
+     The same four edge treatments mean the same thing everywhere in the product:
+       patient words   solid forest rule on the left
+       machine output  dashed amber rule on the left (organised by a model, not verified)
+       proposed rank   solid ink rule on the left    (rules engine proposal, demonstration ruleset)
+       human decision  solid forest bar on top       (recorded by a person)
+     Colour is never the only signal: each is accompanied by a text label where it appears.          */
+  .src-patient { @apply border-l-[3px] border-l-forest; }
+  .src-machine { border-left: 3px dashed #B87914; }
+  .src-proposal { @apply border-l-[3px] border-l-ink; }
+  .src-human { @apply border-t-[3px] border-t-forest; }
+}
+
+/* ---- motion ---- */
+@keyframes shimmer { 0% { background-position: -200px 0; } 100% { background-position: 200px 0; } }
+@keyframes rise { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
+
+.page-enter { animation: rise 420ms cubic-bezier(0.2, 0.7, 0.2, 1) both; }
+
+/* Section reveal: content is visible by default; the Reveal component only arms the hidden state after
+   hydration, for elements that are below the fold. */
+.reveal { transition: opacity 520ms cubic-bezier(0.2, 0.7, 0.2, 1), transform 520ms cubic-bezier(0.2, 0.7, 0.2, 1); }
+.reveal[data-armed="true"]:not([data-in="true"]) { opacity: 0; transform: translateY(14px); }
+
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  *, *::before, *::after { animation: none !important; transition: none !important; }
+  .reveal[data-armed="true"]:not([data-in="true"]) { opacity: 1; transform: none; }
+}
